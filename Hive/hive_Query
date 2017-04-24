@@ -1,0 +1,65 @@
+create table H1_B(sno bigint,case_status string,employer_name string,soc_name string,job_title string,full_time_position string,prevailing_wage float,year int,city string,longitude float,latitude float)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+with SERDEPROPERTIES (
+"separatorChar"="\t")
+
+tblproperties("skip.header.line.count"="1");
+
+create table waraniketh(s_no int,
+
+load data local inpath '/home/hduser/Documents/H1-B _Project/h1b_kaggle.csv' overwrite into table H1_B ;
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+1 a) Is the number of petitions with Data Engineer job title increasing over time?
+HiveQuery
+````````
+select year,count(soc_name) as count1 from h1_b where job_title="DATA ENGINEER" group by year order by year;
+   b) Find top 5 job titles who are having highest growth in applications.
+HiveQuery
+````````
+select job_title,count(soc_name)as applications from h1_b group by job_title order by applications desc limit 5;
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+3)Which industry has the most number of Data Scientist positions?
+HiveQuery
+````````
+select soc_name,count(soc_name) as mostfrom h1_b where job_title="DATA SCIENTIST" group by soc_name order by most desc;
+-------------------------------------------------------------------------------------------------------------------------
+
+6) Find the percentage and the count of each case status on total applications for each year. 
+HiveQuery
+````````
+select a.case_status,round((case_appl/tot_app*100),2)as per,a.year from (select year,case_status,count(case_status)as case_appl from h1_b group by year,case_status) a join (select year,count(case_status)as tot_app from h1_b group by year)b on a.year=b.year order by a.case_status;
+------------------------------------------------------------------------------
+7) Create a bar graph to depict the number of applications for each year
+HiveQuery
+````````
+select year,count(soc_name) as applications from h1_b group by year;
+
+
+------------------------------------------------------------------------
+8) Find the average Prevailing Wage for each Job for each Year (take part time and full time separate)
+HiveQuery
+`````````
+select b.job_title,round(b.Y_avg,2),round(a.N_avg,2),a.year from (select year,avg(prevailing_wage)as N_avg,job_title from h1_b where full_time_position="N"  group by job_title,year) a join (select avg(prevailing_wage)as Y_avg,job_title from h1_b where full_time_position="Y" group by job_title,year ) b on a.job_title=b.job_title;
+
+----------------------------------------------------------------------------------
+9. Which are top ten employers who have the highest success rate in petitions?
+HiveQuery
+````````
+select a.employer_name, (a.Cert_most + b.Cert_most1)/c.total from
+(select employer_name, count(employer_name)as Cert_most from h1_b where case_status="CERTIFIED"group by employer_name) a,(select employer_name, count(employer_name)as Cert_most1 from h1_b where case_status="CERTIFIED-WITHDRAWN"  group by employer_name)b ,(select count(employer_name)as total from h1_b) c;   
+==================
+	or
+==================
+select b.employer_name,round((certified_petitions*100/total_petitions),2)as sucess_rate from (select count(*) as total_petitions from h1_b) a,(select employer_name,count(*) as certified_petitions from h1_b where case_status="CERTIFIED" or case_status="CERTIFIED-WITHDRAWN" group by employer_name) b order by sucess_rate desc;
+---------------------------------------------------------------------------------------------------------------------------
+10) Which are the top 10 job positions which have the highest success rate in petitions?
+HiveQuery
+```````````
+select b.job_title,round((certified_petitions*100/total_petitions),2)as sucess_rate from (select count(*) as total_petitions from h1_b) a,(select job_title,count(*) as certified_petitions from h1_b where case_status="CERTIFIED" or case_status="CERTIFIED-WITHDRAWN" group by job_title) b order by sucess_rate desc;
+
+
