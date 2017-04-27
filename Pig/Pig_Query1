@@ -1,0 +1,112 @@
+h1_b = load '/home/hduser/Documents/H1-B_Project/h1-b_dataset' using PigStorage('\t') as (s_no:int,case_status,employer_name,soc_name,job_title,full_time_position,prevailing_wage:int,year:chararray,worksite,longitute:double,latitute:double );
+
+
+
+1 a) Is the number of petitions with Data Engineer job title increasing over time?
+pig-script
+completed
+```````````
+filt = filter h1_b by job_title == 'DATA ENGINEER';
+dis = foreach filt generate soc_name,year;
+grupby = group dis by $1;
+cunt = foreach grupby generatae $0,COUNT(dis.soc_name)
+
+
+b) Find top 5 job titles who are having highest growth in applications.
+pig-script
+completed
+```````````
+dis = foreach h1_b generate job_title;
+grupby = group dis by $0;
+cunt = foreach grupby generate $0,COUNT(dis.$0);
+odr = order cunt by $1 desc;
+lmt = limit odr 5;
+----------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------
+3)Which industry has the most number of Data Scientist positions?
+pig-script
+completed
+```````````
+filterds = Filter h1_b by job_title == 'DATA SCIENTIST';
+neededdata = FOREACH filterds GENERATE $3,job_title;
+finaldata = group neededdata by $0;
+countofscient = FOREACH finaldata GENERATE $0,COUNT(neededdata.job_title);
+odr = order countofscient by $1;
+dump odr;
+=====================OR================================================
+pig-script
+```````````
+filt = filter h1_b by job_title == 'DATA ENGINEER';
+post = foreach filt generate soc_name,job_title;
+grup = group post by soc_name;
+cunt = foreach grup generate group,COUNT(post.job_title) as total;
+total1 = foreach 
+-----------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------
+6) Find the percentage and the count of each case status on total applications for each year. Create a graph depicting the pattern of All the cases over the period of time.
+pig-script
+```````````
+completed:
+``````````
+dis = foreach h1_b generate year,case_status;
+grp = GROUP dis by year;
+cunt = foreach grp generate $0,COUNT($1);
+
+
+------------------------------------------------------------------------------------------------------------------
+7) Create a bar graph to depict the number of applications for each year
+pig-script
+```````````
+completed
+---------
+dis = foreach h1_b generate year,soc_name;
+groupby = group dis by year;
+cunt = foreach groupby generate $0,COUNT(dis.soc_name);
+
+
+------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------
+9) Which are top ten employers who have the highest success rate in petitions?
+pig-script
+```````````
+completed
+-----------------------
+for total applications:
+-----------------------
+totalrecgrup = group h1_b ALL;
+totalrec = foreach totalrecgrup generate COUNT(h1_b.soc_name)as totalApplications;
+------------------------------------
+rec = foreach h1_b generate employer_name,case_status;
+fil_suc = FILTER rec by case_status == 'CERTIFIED' or case_status == 'CERTIFIED-WITHDRAWN';
+rec1 = foreach fil_suc generate employer_name,case_status;
+groupby = group rec1 by employer_name;
+coutofEmplye = foreach groupby generate $0,COUNT(rec1.case_status) as cerftifiedApplications;
+
+perc = foreach coutofEmplye generate $0,(cerftifiedApplications/(double)totalrec.totalApplications)*100;
+
+odr = order perc by $1;
+lim = LIMIT odr 10;
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+10) Which are the top 10 job positions which have the highest success rate in petitions?
+pig-script
+```````````
+completed
+-------------------------------------------------------------------------------------------------------------------------------------------
+for total applications
+-----------------------
+totalrecgrup = group h1_b ALL;
+totalrec = foreach totalrecgrup generate COUNT(h1_b.soc_name)as totalApplications;
+------------------------------------
+rec = foreach h1_b generate job_title,case_status;
+fil_suc = FILTER rec by case_status == 'CERTIFIED' or case_status == 'CERTIFIED-WITHDRAWN';
+rec1 = foreach fil_suc generate job_title,case_status;
+groupby = group rec1 by job_title;
+coutofEmplye = foreach groupby generate $0,COUNT(rec1.case_status) as cerftifiedApplications;
+
+d = foreach coutofEmplye generate $0,(cerftifiedApplications/(double)totalrec.totalApplications)*100;
+
+odr = order d by $1;
+lim = LIMIT odr 10;
+
