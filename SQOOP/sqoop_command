@@ -1,0 +1,27 @@
+
+--------------------------------------------------------------------------------------------------------------------
+						EXPORT Command 
+--------------------------------------------------------------------------------------------------------------------
+
+synatx:
+```````
+sqoop export -m 1 --connect jdbc:mysql://localhost/<database> --username <username> --password <password> --table <table_name> --export-dir <source path(from where you want to pick the hive table data)>
+
+
+Example:
+````````
+sqoop export -m 1 --connect jdbc:mysql://localhost/h1_b --username root --password '' --table H1_B1 --export-dir /user/hive/warehouse/project.db/h1_b_cpy2/*
+
+
+--------------------------------------------------------------------------------------------------------------------
+						IMPORT Command 
+--------------------------------------------------------------------------------------------------------------------
+syntax:
+```````
+sqoop import --connect jdbc:mysql://localhost/<database> --username <username> --password <password> --table <table_name> --hive-import --hive-table <databaseName_in_HIVE>.<tableName_in_HIVE> -m 1;
+
+Example:
+````````
+sqoop import --connect jdbc:mysql://localhost/adventureworks --username root --password '' --table vendor --hive-import --hive-table niit.sam_vendor1 -m 1;
+
+
