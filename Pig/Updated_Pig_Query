@@ -1,7 +1,6 @@
 h1_b = load '/home/hduser/Documents/H1-B _Project/H1-B_Project/h1-b_dataset' using PigStorage('\t') as (s_no:int,case_status,employer_name,soc_name,job_title,full_time_position,prevailing_wage:int,year:chararray,worksite,longitute:double,latitute:double );
 
 
-
 1 a) Is the number of petitions with Data Engineer job title increasing over time?
 pig-script
 completed
@@ -10,7 +9,7 @@ filt = filter h1_b by job_title == 'DATA ENGINEER';
 dis = foreach filt generate soc_name,year;
 grupby = group dis by $1;
 cunt = foreach grupby generate $0,COUNT(dis.soc_name)
-
+dump cunt;
 
 b) Find top 5 job titles who are having highest growth in applications.
 pig-script
@@ -21,6 +20,7 @@ grupby = group dis by $0;
 cunt = foreach grupby generate $0,COUNT(dis.$0);
 odr = order cunt by $1 desc;
 lmt = limit odr 5;
+dump lmt;
 
 ==============================================================================================================================
 
@@ -28,107 +28,26 @@ lmt = limit odr 5;
 pig-script:
 ```````````
 
-
-dis =foreach h1_b generate worksite,job_title,year;
-fil2011 = FILTER dis by job_title == 'DATA ENGINEER';
-grp2011 = group fil2011 by (worksite,year);
-cunt2011 = foreach grp2011 generate group,COUNT(fil2011.$0) as mostData;
-odr2011 = ORDER cunt2011 by $1 desc;
-lim2011 = LIMIT odr2011 1;
-
-
-dis =foreach h1_b generate worksite,job_title,year;
-fil2012 = FILTER dis by job_title == 'DATA ENGINEER';
-grp2012 = group fil2012 by (worksite,year);
-cunt2012 = foreach grp2012 generate group,COUNT(fil2012.$0) as mostData;
-odr2012 = ORDER cunt2012 by $1 desc;
-lim2012 = LIMIT odr2012 1;
-
-dis =foreach h1_b generate worksite,job_title,year;
-fil2013 = FILTER dis by job_title == 'DATA ENGINEER';
-grp2013 = group fil2013 by (worksite,year);
-cunt2013 = foreach grp2013 generate group,COUNT(fil2013.$0) as mostData;
-odr2013 = ORDER cunt2013 by $1 desc;
-lim2013 = LIMIT odr2013 1;
-
-
-dis =foreach h1_b generate worksite,job_title,year;
-fil2014 = FILTER dis by job_title == 'DATA ENGINEER';
-grp2014 = group fil2014 by (worksite,year);
-cunt2014 = foreach grp2014 generate group,COUNT(fil2014.$0) as mostData;
-odr2014 = ORDER cunt2014 by $1 desc;
-lim2014 = LIMIT odr2014 1;
-
-
-dis =foreach h1_b generate worksite,job_title,year;
-fil2015 = FILTER dis by job_title == 'DATA ENGINEER';
-grp2015 = group fil2015 by (worksite,year);
-cunt2015 = foreach grp2015 generate group,COUNT(fil2015.$0) as mostData;
-odr2015 = ORDER cunt2015 by $1 desc;
-lim2015 = LIMIT odr2015 1;
-
-
-dis =foreach h1_b generate worksite,job_title,year;
-fil2016 = FILTER dis by job_title == 'DATA ENGINEER';
-grp2016 = group fil2016 by (worksite,year);
-cunt2016 = foreach grp2016 generate group,COUNT(fil2016.$0) as mostData;
-odr2016 = ORDER cunt2016 by $1 desc;
-lim2016 = LIMIT odr2016 1;
-
-unionALL = union lim2011,lim2012,lim2013,lim2014,lim2015,lim2016;
+fil = FILTER h1_b by job_title == 'DATA ENGINEER' ;
+dis =foreach fil generate job_title,year;
+grp2013 = group dis by (job_title,year);
+cunt2013 = foreach grp2013 generate $0.year,$0.job_title,COUNT(dis.$0) as TEngr;
+ys = group cunt2013 by $0;
+top5 = foreach ys { sorted = order cunt2013 by TEngr desc ; top = limit sorted 5 ; generate flatten(top); }; 
+dump top5
 
 -------------------------------------------------------------------------------------------------------------------------------
 
    b) find top 5 locations in the US who have got certified visa for each year.
 	pig-script:
 	```````````
-
-
-dis =foreach h1_b generate worksite,case_status,year;
-fil2011 = FILTER dis by case_status == 'CERTIFIED' or case_status == 'CERTIFIED-WITHDRAWN';
-grp2011 = group fil2011 by (worksite,year);
-cunt2011 = foreach grp2011 generate group,COUNT(fil2011.$0) as mostData;
-odr2011 = ORDER cunt2011 by $1 desc;
-lim2011 = LIMIT odr2011 1;
-
-
-dis =foreach h1_b generate worksite,case_status,year;
-fil2012 = FILTER dis by case_status == 'CERTIFIED' or case_status == 'CERTIFIED-WITHDRAWN';
-grp2012 = group fil2012 by (worksite,year);
-cunt2012 = foreach grp2012 generate group,COUNT(fil2012.$0) as mostData;
-odr2012 = ORDER cunt2012 by $1 desc;
-lim2012 = LIMIT odr2012 5;
-
-dis =foreach h1_b generate worksite,case_status,year;
-fil2013 = FILTER dis by case_status == 'CERTIFIED' or case_status == 'CERTIFIED-WITHDRAWN';
-grp2013 = group fil2013 by (worksite,year);
-cunt2013 = foreach grp2013 generate group,COUNT(fil2013.$0) as mostData;
-odr2013 = ORDER cunt2013 by $1 desc;
-lim2013 = LIMIT odr2013 5;
-
-
-dis =foreach h1_b generate worksite,case_status,year;
-fil2014 = FILTER dis by case_status == 'CERTIFIED' or case_status == 'CERTIFIED-WITHDRAWN';
-grp2014 = group fil2014 by (worksite,year);
-cunt2014 = foreach grp2014 generate group,COUNT(fil2014.$0) as mostData;
-odr2014 = ORDER cunt2014 by $1 desc;
-lim2014 = LIMIT odr2014 5;
-
-
-dis =foreach h1_b generate worksite,case_status,year;
-fil2015 = FILTER dis by case_status == 'CERTIFIED' or case_status == 'CERTIFIED-WITHDRAWN';
-grp2015 = group fil2015 by (worksite,year);
-cunt2015 = foreach grp2015 generate group,COUNT(fil2015.$0) as mostData;
-odr2015 = ORDER cunt2015 by $1 desc;
-lim2015 = LIMIT odr2015 5;
-
-
-dis =foreach h1_b generate worksite,case_status,year;
-fil2016 = FILTER dis by case_status == 'CERTIFIED' or case_status == 'CERTIFIED-WITHDRAWN';
-grp2016 = group fil2016 by (worksite,year);
-cunt2016 = foreach grp2016 generate group,COUNT(fil2016.$0) as mostData;
-odr2016 = ORDER cunt2016 by $1 desc;
-lim2016 = LIMIT odr2016 5;
+fil = FILTER h1_b by case_status == 'CERTIFIED' or case_status == 'CERTIFIED-WITHDRAWN';
+dis =foreach fil generate worksite,year;
+grp2013 = group dis by (worksite,year);
+cunt2013 = foreach grp2013 generate $0.year,$0.worksite,COUNT(dis.$0) as TaprdVisa;
+ys = group cunt2013 by $0;
+top5 = foreach ys { sorted = order cunt2013 by TaprdVisa desc ; top = limit sorted 5 ; generate flatten(top); }; 
+dump top5
 
 ==============================================================================================================================
 
@@ -156,93 +75,22 @@ odr = order cunt by total desc;
 4)Which top 5 employers file the most petitions each year?
 
 dis =foreach h1_b generate employer_name,year;
-fil2011 = FILTER dis by year == '2011';
-grp2011 = group fil2011 by (employer_name,year);
-cunt2011 = foreach grp2011 generate group,COUNT(fil2011.$0) as petin;
-odr2011 = ORDER cunt2011 by $1 desc;
-lim2011 = LIMIT odr2011 5;
-
-dis =foreach h1_b generate employer_name,year;
-fil2012 = FILTER dis by year == '2012';
-grp2012 = group fil2012 by (employer_name,year);
-cunt2012 = foreach grp2012 generate group,COUNT(fil2012.$0) as petin;
-odr2012 = ORDER cunt2012 by $1 desc;
-lim2012 = LIMIT odr2012 5;
-
-dis =foreach h1_b generate employer_name,year;
-fil2013 = FILTER dis by year == '2013';
-grp2013 = group fil2013 by (employer_name,year);
-cunt2013 = foreach grp2013 generate group,COUNT(fil2013.$0) as petin;
-odr2013 = ORDER cunt2013 by $1 desc;
-lim2013 = LIMIT odr2013 5;
-
-dis =foreach h1_b generate employer_name,year;
-fil2014 = FILTER dis by year == '2014';
-grp2014 = group fil2014 by (employer_name,year);
-cunt2014 = foreach grp2014 generate group,COUNT(fil2014.$0) as petin;
-odr2014 = ORDER cunt2014 by $1 desc;
-lim2014 = LIMIT odr2014 5;
-
-dis =foreach h1_b generate employer_name,year;
-fil2015 = FILTER dis by year == '2015';
-grp2015 = group fil2015 by (employer_name,year);
-cunt2015 = foreach grp2015 generate group,COUNT(fil2015.$0) as petin;
-odr2015 = ORDER cunt2015 by $1 desc;
-lim2015 = LIMIT odr2015 5;
-
-dis =foreach h1_b generate employer_name,year;
-fil2016 = FILTER dis by year == '2016';
-grp2016 = group fil2016 by (employer_name,year);
-cunt2016 = foreach grp2016 generate group,COUNT(fil2016.$0) as petin;
-odr2016 = ORDER cunt2016 by $1 desc;
-lim2016 = LIMIT odr2016 5;
-
-unionall = union lim2011,lim2012,lim2013,lim2014,lim2015,lim2016;
-dump unionall;
+grp2013 = group dis by (employer_name,year);
+cunt2013 = foreach grp2013 generate $0.year,$0.employer_name,COUNT(dis.$0) as petin;
+ys = group cunt2013 by $0;
+top5 = foreach ys { sorted = order cunt2013 by petin desc ; top = limit sorted 5 ; generate flatten(top); }; 
+dump top5;
 
 ==============================================================================================================================
 
 5) Find the most popular top 10 job positions for H1B visa applications for each year?
 
 dis =foreach h1_b generate job_title,year;
-fil2011 = FILTER dis by year == '2011';
-grp2011 = group fil2011 by (job_title,year);
-cunt2011 = foreach grp2011 generate group,COUNT(fil2011.$0) as petin;
-odr2011 = ORDER cunt2011 by $1 desc;
-lim2011 = LIMIT odr2011 10;
-
-fil2012 = FILTER dis by year == '2012';
-grp2012 = group fil2012 by (job_title,year);
-cunt2012 = foreach grp2012 generate group,COUNT(fil2012.$0) as petin;
-odr2012 = ORDER cunt2012 by $1 desc;
-lim2012 = LIMIT odr2012 10;
-
-fil2013 = FILTER dis by year == '2013';
-grp2013 = group fil2013 by (job_title,year);
-cunt2013 = foreach grp2013 generate group,COUNT(fil2013.$0) as petin;
-odr2013 = ORDER cunt2013 by $1 desc;
-lim2013 = LIMIT odr2013 10;
-
-fil2014 = FILTER dis by year == '2014';
-grp2014 = group fil2014 by (job_title,year);
-cunt2014 = foreach grp2014 generate group,COUNT(fil2014.$0) as petin;
-odr2014 = ORDER cunt2014 by $1 desc;
-lim2014 = LIMIT odr2014 10;
-
-fil2015 = FILTER dis by year == '2015';
-grp2015 = group fil2015 by (job_title,year);
-cunt2015 = foreach grp2015 generate group,COUNT(fil2015.$0) as petin;
-odr2015 = ORDER cunt2015 by $1 desc;
-lim2015 = LIMIT odr2015 10;
-
-fil2016 = FILTER dis by year == '2016';
-grp2016 = group fil2016 by (job_title,year);
-cunt2016 = foreach grp2016 generate group,COUNT(fil2016.$0) as petin;
-odr2016 = ORDER cunt2016 by $1 desc;
-lim2016 = LIMIT odr2016 10;
-
-unionall = union lim2011,lim2012,lim2013,lim2014,lim2015,lim2016;
-dump unionall;
+grp2013 = group dis by (job_title,year);
+cunt2013 = foreach grp2013 generate $0.year,$0.job_title,COUNT(dis.$0) as Tapplications;
+ys = group cunt2013 by $0;
+top10 = foreach ys { sorted = order cunt2013 by Tapplications desc ; top = limit sorted 5 ; generate flatten(top); }; 
+dump top10;
 
 ==============================================================================================================================
 
@@ -282,20 +130,22 @@ dump cunt;
 
 8) Find the average Prevailing Wage for each Job for each Year (take part time and full time separate)
 
-
 fil = filter h1_b by full_time_position == 'Y';
 tme_Y = group fil by (job_title,year);
 sum_Y = foreach tme_Y generate group,AVG(fil.prevailing_wage) as AVG_Y;
-odr_Y = order sum_Y by $0 desc;
-lim1 = limit sum_Y 1;
-
+odr_Y = order sum_Y by $1 desc;
 
 fil = filter h1_b by full_time_position == 'N';
-tme_Y = group fil by (job_title,year);
+tme_N = group fil by (job_title,year);
 sum_N = foreach tme_N generate group,AVG(fil.prevailing_wage) as AVG_N;
-odr_N = order sum_N by $0 desc;
-lim2 = limit odr_N 1;
+odr_N = order sum_N by $1 desc;
 
+join1 = join sum_Y by $0,sum_N by $0;
+for = foreach join1 generate $0,$1,$3;
+odr = order for by $1 desc;
+
+lim = limit odr 4;
+dump lim;
 
 
 ==============================================================================================================================
@@ -303,7 +153,6 @@ lim2 = limit odr_N 1;
 9) Which are top ten employers who have the highest success rate in petitions?
 pig-script
 ```````````
-
 -----------------------
 for total applications:
 -----------------------
@@ -338,7 +187,7 @@ rec1 = foreach fil_suc generate job_title,case_status;
 groupby = group rec1 by job_title;
 coutofEmplye = foreach groupby generate $0,COUNT(rec1.case_status) as cerftifiedApplications;
 
-d = foreach coutofEmplye generate $0,(cerftifiedApplications/(double)totalrec.totalApplications)*100;
+d = foreach coutofEmplye generate $0,CONCAT (((cerftifiedApplications/(double)totalrec.totalApplications)*100));
 
 odr = order d by $1 desc;
 lim = LIMIT odr 10;
