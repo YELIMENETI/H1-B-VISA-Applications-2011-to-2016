@@ -54,7 +54,7 @@ public class Que9 {
 
 		protected void cleanup(Context context) throws IOException,
 				InterruptedException {
-			for (Text t : repToRecordMap.values()) {
+			for (Text t : repToRecordMap.descendingMap().values()) {
 				context.write(NullWritable.get(), t);
 			}
 		}
